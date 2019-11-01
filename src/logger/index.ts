@@ -1,6 +1,8 @@
 // from https://github.com/winstonjs/winston/issues/1427#issuecomment-535297716
 import { format as dateFormat } from "date-fns";
+import path from 'path';
 import { createLogger, format, transports } from "winston";
+import { isProduction } from "../utils";
 const { inspect } = require("util");
 
 function isPrimitive(val) {
@@ -18,7 +20,7 @@ function formatWithInspect(val) {
 const fileName = `${dateFormat(new Date(), `yyyy-MM-dd`)}.log`;
 // CHANGEME: depending on where you want to log on production
 const logFilePath =
-  process.env.NODE_ENV === `production`
+  isProduction()
     ? `/storage/logs/${fileName}`
     : `logs/${fileName}`;
 
@@ -38,7 +40,7 @@ const logger = createLogger({
   ),
   transports: [
     new transports.Console({
-      level: `verbose`
+      level: `info`
     }),
     new transports.File({
       filename: logFilePath,
@@ -46,5 +48,9 @@ const logger = createLogger({
     })
   ]
 });
+
+
+logger.info(`is_production = ${isProduction()}`)
+logger.info(`Logfile path: ${path.resolve(logFilePath)}`)
 
 export { logger };

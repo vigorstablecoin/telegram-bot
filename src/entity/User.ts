@@ -1,4 +1,5 @@
 import {Entity, PrimaryColumn, Column, Index, BaseEntity} from "typeorm";
+import { NOTIFICATION_LEVEL } from "../types";
 
 @Entity()
 export class User extends BaseEntity {
@@ -21,4 +22,14 @@ export class User extends BaseEntity {
 
     @Column({ nullable: true })
     lastName: string;
+
+    @Column({ nullable: true })
+    languageCode: string;
+
+    @Column()
+    dacNotificationLevel: number;
+
+    get DacNotificationLevel() {
+        return this.dacNotificationLevel as NOTIFICATION_LEVEL
+    }
 }
