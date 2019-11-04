@@ -1,7 +1,7 @@
 import { logger } from "../logger"
 import client from "./dfuse"
 import { DAC_MULTI_SIG_ACCOUNT } from "../constants"
-import { TEosAction } from "./types"
+import { TEosAction, GetChainInfoResult } from "./types"
 import { TProposalsRow } from "../types"
 import { TransactionLifecycle, ActionTrace } from "@dfuse/client"
 
@@ -87,4 +87,12 @@ export const fetchRow = async <T>(options: GetTableRowsOptions, blockNumber?: nu
   })
 
   return result.row.json
+}
+
+export const fetchHeadBlockNumber =  async () => {
+  const response = await client.apiRequest<GetChainInfoResult>(
+    `/v1/chain/get_info`,
+    `GET`,
+  )
+  return response.last_irreversible_block_num;
 }

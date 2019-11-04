@@ -1,33 +1,23 @@
 import Telegraf from 'telegraf'
 import { User } from '../entity/User'
 import { logger } from '../logger'
-import { NOTIFICATION_LEVEL } from '../types'
+import { NOTIFICATION_LEVEL, ExtendedContextMessageUpdate } from '../types'
+import setupHelp from './commands/help'
+import setupStart from './commands/start'
+import setupSettings from './commands/settings'
+import setupInfo from './commands/info'
+import { withUser } from './middlewares/withUser'
 
 const { WEBHOOK_DOMAIN, WEBHOOK_PATH } = process.env
 logger.info(`WEBHOOK config`, { WEBHOOK_DOMAIN, WEBHOOK_PATH })
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(process.env.BOT_TOKEN) as Telegraf<ExtendedContextMessageUpdate>
 
-bot.command('start', async ctx => {
-  const telegramId = ctx.from.id;
-  let user = await User.findOne(telegramId)
-  if (!user) {
-    user = new User()
-    user.telegramId = telegramId
-  }
-  user.telegramHandle = ctx.from.username
-  user.telegramChatId = ctx.chat.id
-  user.firstName = ctx.from.first_name
-  user.lastName = ctx.from.last_name
-  user.languageCode = ctx.from.language_code
-  user.dacNotificationLevel = NOTIFICATION_LEVEL.IMPORTANT
-  await user.save()
-
-  logger.verbose(`new user:`, user)
-
-  return ctx.replyWithMarkdown(`Hello _${user.firstName}_! I'll update you on new VigorDAC proposals.`)
-})
-bot.on('text', ({ replyWithHTML }) => replyWithHTML('<b>test</b>'))
+bot.use(withUser)
+setupStart(bot)
+setupHelp(bot)
+setupInfo(bot)
+setupSettings(bot)
 
 export const initBot = async () => {
   if (!WEBHOOK_DOMAIN) {

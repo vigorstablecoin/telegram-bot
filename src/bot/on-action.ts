@@ -18,9 +18,10 @@ const getUsersToNotify = async (notificationLevel: NOTIFICATION_LEVEL) => {
 const getNotificationLevelForAction = (action: TEosAction) => {
   switch (action.name) {
     case "cancelled":
-    case "clean":
+    case "executed":
     case "proposed":
-      return NOTIFICATION_LEVEL.IMPORTANT;
+        return NOTIFICATION_LEVEL.IMPORTANT;
+    case "clean":
     case "approved":
     case "unapproved":
     default:
@@ -42,7 +43,7 @@ const getMessageForAction = async (action: TEosAction): Promise<[string, any]> =
   const defaultOptions = {
     parse_mode: `Markdown`,
     disable_web_page_preview: true,
-    reply_markup: Markup.inlineKeyboard([memberClientButton]),
+    // reply_markup: Markup.inlineKeyboard([memberClientButton]),
   };
 
   switch (action.name) {
@@ -52,7 +53,7 @@ const getMessageForAction = async (action: TEosAction): Promise<[string, any]> =
         ? `\n${metadata.description}`
         : ``;
       return [
-        `📖 New Proposal by ${action.data.proposer} (_${action.data.proposal_name}_):
+        `🚨 New Proposal by ${action.data.proposer} (_${action.data.proposal_name}_):
 *${metadata.title}*${description}
 `,
         {
@@ -69,9 +70,35 @@ const getMessageForAction = async (action: TEosAction): Promise<[string, any]> =
         ? `\n${metadata.description}`
         : ``;
       return [
-        `❌ Proposal by ${action.data.proposer} was cancelled (_${action.data.proposal_name}_):
+        `🔥 Proposal by ${action.data.proposer} was cancelled (_${action.data.proposal_name}_):
 *${metadata.title}*${description}
 `,
+        defaultOptions
+      ];
+    }
+    case `executed`: {
+      const metadata = await fetchMsigMetadata(action)
+      const description = metadata.description
+        ? `\n${metadata.description}`
+        : ``;
+      return [
+        `🚀 Proposal by ${action.data.proposer} was executed (_${action.data.proposal_name}_):
+*${metadata.title}*${description}
+`,
+        defaultOptions
+      ];
+    }
+    case `approved`: {
+      const metadata = await fetchMsigMetadata(action)
+      return [
+        `✅ Proposal *"${metadata.title}"* was approved by ${action.data.approver}. (_${action.data.proposal_name}_)`,
+        defaultOptions
+      ];
+    }
+    case `unapproved`: {
+      const metadata = await fetchMsigMetadata(action)
+      return [
+        `❌ Proposal *"${metadata.title}"* was unapproved by ${action.data.unapprover}. (_${action.data.proposal_name}_)`,
         defaultOptions
       ];
     }

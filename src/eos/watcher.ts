@@ -5,10 +5,11 @@ import {
 } from '@dfuse/client'
 import Config from '../entity/Config'
 import { logger } from '../logger'
-import { GetChainInfoResult, TEosAction } from './types'
-import { sleep } from '../utils'
+import { TEosAction } from './types'
+import { sleep, isProduction } from '../utils'
 import onAction from '../bot/on-action'
 import { DAC_MULTI_SIG_ACCOUNT } from '../constants'
+import { fetchHeadBlockNumber } from './fetch'
 
 const MAX_BLOCK_RANGE_PER_SEARCH = 7200 * 12 // 12 hours
 // we don't to spam people, so only look this far back if bot crashed and is restarted at some point
@@ -66,17 +67,11 @@ class Watcher {
     this.client = client
   }
 
-  protected async getHeadBlockNumber() {
-    const response = await this.client.apiRequest<GetChainInfoResult>(
-      `/v1/chain/get_info`,
-      `GET`,
-    )
-    return response.last_irreversible_block_num;
-  }
+
 
   public async start() {
     this.config = await Config.findOneOrFail({ id: 0 })
-    let headBlockNumber = await this.getHeadBlockNumber()
+    let headBlockNumber = await fetchHeadBlockNumber()
     const diffToConfig = headBlockNumber - this.config.lastCommittedBlockNumber
     logger.info(
       `Block number - Head: ${headBlockNumber} - Config: ${
@@ -91,7 +86,7 @@ class Watcher {
     logger.info(`Watcher starting at ${fromBlock}`)
 
     while (true) {
-      headBlockNumber = await this.getHeadBlockNumber()
+      headBlockNumber = await fetchHeadBlockNumber()
       const toBlock = Math.min(headBlockNumber, fromBlock + MAX_BLOCK_RANGE_PER_SEARCH)
       await this.getPendingActions(fromBlock, toBlock)
       await this.commit(toBlock)
@@ -153,7 +148,10 @@ class Watcher {
 
     this.config!.lastCommittedBlockNumber = blockNum
 
-    await Config.save(this.config!)
+    // don't save in dev mode to make testing easier
+    if(isProduction()) {
+      await Config.save(this.config!)
+    }
   }
 }
 
