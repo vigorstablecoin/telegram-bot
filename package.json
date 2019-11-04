@@ -1,6 +1,6 @@
 {
    "name": "telegram-bot",
-   "version": "0.0.1",
+   "version": "1.0.0",
    "description": "Telegram bot for Vigor",
    "dependencies": {
       "@dfuse/client": "^0.3.0",
