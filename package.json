@@ -21,7 +21,7 @@
       "ws": "^7.2.0"
    },
    "scripts": {
-      "start:dev": "NODE_ENV=development nodemon --exec ts-node src/index.ts",
+      "start-dev": "NODE_ENV=development nodemon --exec ts-node src/index.ts",
       "start": "ts-node src/index.ts",
       "build": "tsc"
    }

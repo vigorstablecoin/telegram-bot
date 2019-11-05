@@ -60,7 +60,7 @@ const getMessageForAction = async (action: TEosAction): Promise<[string, any]> =
           ...defaultOptions,
           reply_markup: Markup.inlineKeyboard([
             memberClientButton,
-            getBloksButton(action.data.proposer, action.data.proposal_name)
+            // getBloksButton(action.data.proposer, action.data.proposal_name)
           ])
         }
       ];
