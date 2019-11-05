@@ -1,6 +1,7 @@
 import { Markup, Telegraf } from "telegraf";
 import { logger } from "../../logger";
 import { NOTIFICATION_LEVEL, ExtendedContextMessageUpdate } from "../../types";
+import { userInfo } from "os";
 
 const allNotificationLevels = [
   NOTIFICATION_LEVEL.ALL,
@@ -44,7 +45,7 @@ export default function setupSettings(
     await ctx.editMessageText(`🗣️ Receive Notifications`, {
       reply_markup: Markup.inlineKeyboard(
         allNotificationLevels.map(level =>
-          Markup.callbackButton(`${getTextForNotificationLevel(level)}`, `settings/notifications/${level}`)
+          Markup.callbackButton(`${getTextForNotificationLevel(level)}${level === ctx.user.dacNotificationLevel ? ` ✅` : ``}`, `settings/notifications/${level}`)
         )
       )
     });
