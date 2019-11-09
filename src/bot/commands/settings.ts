@@ -49,10 +49,11 @@ export default function setupSettings(
   });
 
   bot.action("settings/notifications", checkGroupAdmin, async ctx => {
+    const activeNotificationLevel = ctx.group ? ctx.group.dacNotificationLevel : ctx.user.dacNotificationLevel
     await ctx.editMessageText(`🗣️ Receive Notifications`, {
       reply_markup: Markup.inlineKeyboard(
         allNotificationLevels.map(level =>
-          Markup.callbackButton(`${getTextForNotificationLevel(level)}${level === ctx.user.dacNotificationLevel ? ` ✅` : ``}`, `settings/notifications/${level}`)
+          Markup.callbackButton(`${getTextForNotificationLevel(level)}${level === activeNotificationLevel ? ` ✅` : ``}`, `settings/notifications/${level}`)
         )
       )
     });
