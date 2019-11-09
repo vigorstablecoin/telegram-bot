@@ -6,17 +6,19 @@ import setupHelp from './commands/help'
 import setupStart from './commands/start'
 import setupSettings from './commands/settings'
 import setupInfo from './commands/info'
-import { withUser } from './middlewares/withUser'
+import { withUserAndGroup } from './middlewares/withUserAndGroup'
+import setupBroadcast from './commands/broadcast'
 
 const { WEBHOOK_DOMAIN, WEBHOOK_PATH } = process.env
 logger.info(`WEBHOOK config`, { WEBHOOK_DOMAIN, WEBHOOK_PATH })
 
 const bot = new Telegraf(process.env.BOT_TOKEN) as Telegraf<ExtendedContextMessageUpdate>
 
-bot.use(withUser)
+bot.use(withUserAndGroup)
 setupStart(bot)
 setupHelp(bot)
 setupInfo(bot)
+setupBroadcast(bot)
 setupSettings(bot)
 
 export const initBot = async () => {

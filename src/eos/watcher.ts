@@ -13,7 +13,7 @@ import { fetchHeadBlockNumber } from './fetch'
 
 const MAX_BLOCK_RANGE_PER_SEARCH = 7200 * 12 // 12 hours
 // we don't to spam people, so only look this far back if bot crashed and is restarted at some point
-const MAX_PAST_LOOKUP = 7200 * 24
+const MAX_PAST_LOOKUP = isProduction() ? 7200 * 1 : 7200 * 3
 
 const ACCOUNT_TO_WATCH = DAC_MULTI_SIG_ACCOUNT
 
@@ -35,7 +35,7 @@ const getActionTraces = (trans: SearchTransactionRow): TEosAction[] => {
 
     if (isMatchingTrace(curTrace)) {
       matchingTraces.push(curTrace)
-      logger.verbose(
+      logger.info(
         `Pending ${curTrace.act.account}:${curTrace.act.name} @ ${blockNumber}`,
       )
     }
@@ -137,7 +137,7 @@ class Watcher {
   }
 
   private async commit(blockNum: number) {
-    logger.info(`Committing all actions up to block ${blockNum}`)
+    logger.verbose(`Committing all actions up to block ${blockNum}`)
 
     while (this.pendingActions.length > 0) {
       const action = this.pendingActions.shift()

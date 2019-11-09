@@ -2,8 +2,8 @@
 import { format as dateFormat } from "date-fns";
 import path from 'path';
 import { createLogger, format, transports } from "winston";
+import { inspect } from "util"
 import { isProduction } from "../utils";
-const { inspect } = require("util");
 
 function isPrimitive(val) {
   return val === null || (typeof val !== "object" && typeof val !== "function");
@@ -29,7 +29,7 @@ const logger = createLogger({
   format: format.combine(
     format.timestamp(),
     format.errors({ stack: true }),
-    format.colorize(),
+    // format.colorize(),
     format.printf(info => {
       const msg = formatWithInspect(info.message);
       const splatArgs = info[Symbol.for("splat") as any] || [];
@@ -45,10 +45,9 @@ const logger = createLogger({
     new transports.File({
       filename: logFilePath,
       level: "silly"
-    })
+    }), 
   ]
 });
-
 
 logger.info(`is_production = ${isProduction()}`)
 logger.info(`Logfile path: ${path.resolve(logFilePath)}`)

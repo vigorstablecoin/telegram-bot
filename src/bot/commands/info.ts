@@ -18,6 +18,7 @@ export default function setupInfo(bot: Telegraf<ExtendedContextMessageUpdate>) {
       lastProcessedBlock,
       blocksBehind: diffBlockString,
       user: ctx.user,
+      group: ctx.group,
     }, null, 2)
 
     ctx.replyWithMarkdown(`ℹ️ Bot and User info:
