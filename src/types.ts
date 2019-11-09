@@ -1,5 +1,5 @@
 import { ContextMessageUpdate } from "telegraf"
-import { withUserType } from "./bot/middlewares/withUser"
+import { withUserAndGroupType } from "./bot/middlewares/withUserAndGroup"
 
 export enum NOTIFICATION_LEVEL {
   NONE, // never notify
@@ -13,4 +13,4 @@ export type TProposalsRow = {
   proposalname: string
 }
 
-export type ExtendedContextMessageUpdate = ContextMessageUpdate & withUserType
+export type ExtendedContextMessageUpdate = ContextMessageUpdate & withUserAndGroupType

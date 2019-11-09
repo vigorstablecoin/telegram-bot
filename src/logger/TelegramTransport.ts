@@ -11,7 +11,6 @@ export default class TelegramTransport extends Transport {
   chatIdPromise
   constructor(opts:TelegramTransportOptions) {
     super(opts);
-    console.log(`in constructor`)
     this.chatIdPromise = opts.getChatId()
   }
 

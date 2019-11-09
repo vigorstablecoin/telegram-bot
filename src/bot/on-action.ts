@@ -6,7 +6,7 @@ import { Markup } from "telegraf";
 import { fetchMsigMetadata } from "../eos/fetch";
 import { logger } from "../logger";
 import { ParseMode } from "telegraf/typings/telegram-types";
-import { getUsersToNotify, sendToUsers } from "./utils";
+import { getUsersToNotify, sendToUsers, sendToAll } from "./utils";
 
 const getNotificationLevelForAction = (action: TEosAction) => {
   switch (action.name) {
@@ -106,10 +106,9 @@ ${JSON.stringify(action.data, null, 2)}
 
 const onAction = async (action: TEosAction) => {
   const notificationLevel = getNotificationLevelForAction(action);
-  const users = await getUsersToNotify(notificationLevel);
 
   const args = await getMessageForAction(action);
-  await sendToUsers(users, args[0], args[1])
+  await sendToAll(notificationLevel, args[0], args[1])
 };
 
 export default onAction;

@@ -2,6 +2,8 @@ import { Markup, Telegraf } from "telegraf";
 import { logger } from "../../logger";
 import { NOTIFICATION_LEVEL, ExtendedContextMessageUpdate } from "../../types";
 import { userInfo } from "os";
+import { checkGroupAdmin } from "../middlewares/checkGroupAdmin";
+import { Group } from "../../entity/Group";
 
 const allNotificationLevels = [
   NOTIFICATION_LEVEL.ALL,
@@ -23,12 +25,17 @@ const getTextForNotificationLevel = (level: NOTIFICATION_LEVEL) => {
 export default function setupSettings(
   bot: Telegraf<ExtendedContextMessageUpdate>
 ) {
-  bot.action(allNotificationLevels.map(l => `settings/notifications/${l}`), async ctx => {
+  bot.action(allNotificationLevels.map(l => `settings/notifications/${l}`), checkGroupAdmin, async ctx => {
     try {
       const level = Number.parseInt(ctx.callbackQuery.data.split(`/`).pop(), 10) as NOTIFICATION_LEVEL
 
-      ctx.user.dacNotificationLevel = level;
-      ctx.user.save()
+      if(ctx.group) {
+        ctx.group.dacNotificationLevel = level
+        ctx.group.save()
+      } else {
+        ctx.user.dacNotificationLevel = level;
+        ctx.user.save()
+      }
 
       await ctx.editMessageText(`🗣️ Notifications changed to "${getTextForNotificationLevel(level)}"`, {
         reply_markup: Markup.inlineKeyboard(
@@ -41,7 +48,7 @@ export default function setupSettings(
     }
   });
 
-  bot.action("settings/notifications", async ctx => {
+  bot.action("settings/notifications", checkGroupAdmin, async ctx => {
     await ctx.editMessageText(`🗣️ Receive Notifications`, {
       reply_markup: Markup.inlineKeyboard(
         allNotificationLevels.map(level =>
@@ -51,9 +58,9 @@ export default function setupSettings(
     });
   });
  
-  bot.command("settings", async ctx => {
+  bot.command("settings", checkGroupAdmin, async ctx => {
     await ctx.reply(
-      "⚙️ Change settings",
+      `⚙️ Change settings${ctx.group ? ` for group` : ``}`,
       Markup.inlineKeyboard([
         Markup.callbackButton("🗣️ Notifications", "settings/notifications")
       ]).extra()
