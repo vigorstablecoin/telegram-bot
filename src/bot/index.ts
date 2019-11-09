@@ -7,6 +7,7 @@ import setupStart from './commands/start'
 import setupSettings from './commands/settings'
 import setupInfo from './commands/info'
 import { withUser } from './middlewares/withUser'
+import setupBroadcast from './commands/broadcast'
 
 const { WEBHOOK_DOMAIN, WEBHOOK_PATH } = process.env
 logger.info(`WEBHOOK config`, { WEBHOOK_DOMAIN, WEBHOOK_PATH })
@@ -17,6 +18,7 @@ bot.use(withUser)
 setupStart(bot)
 setupHelp(bot)
 setupInfo(bot)
+setupBroadcast(bot)
 setupSettings(bot)
 
 export const initBot = async () => {

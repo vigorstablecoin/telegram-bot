@@ -2,6 +2,8 @@ import path from 'path'
 import { createConnection, getConnection, ConnectionOptions, getConnectionOptions } from "typeorm";
 import { logger } from "./logger";
 import { isProduction } from './utils';
+import TelegramTransport from './logger/TelegramTransport';
+import { User } from './entity/User';
 
 let connection = null;
 
@@ -26,6 +28,25 @@ export const getDb = async () => {
       database: dbPath,
     });
     await connection.runMigrations();
+
+    if (process.env.ADMIN_TELEGRAM_HANDLE) {
+      logger.add(new TelegramTransport({
+        level: `error`,
+        getChatId: async () => {
+          // wait until DB is ready
+          try {
+            const admin = await User.findOne({
+              telegramHandle: process.env.ADMIN_TELEGRAM_HANDLE
+            })
+
+            if (admin) return admin.telegramChatId
+          } catch (err) {
+            console.error(err.message)
+          }
+          return undefined
+        }
+      }))
+    }
   }
 
   return connection;

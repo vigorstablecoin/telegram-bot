@@ -30,6 +30,6 @@ export async function withUser(ctx: ContextMessageUpdate, next) {
     next()
   } catch (err) {
     logger.error(`withUser middleware:`, err.message)
-    ctx.replyWithMarkdown(`Could not find and create your user. Please contact support`)
+    // ctx.replyWithMarkdown(`Could not find and create your user. Please contact support`)
   }
 }

@@ -2,18 +2,11 @@ import { TEosAction } from "../eos/types";
 import bot from "./index";
 import { User } from "../entity/User";
 import { NOTIFICATION_LEVEL } from "../types";
-import { MoreThanOrEqual } from "typeorm";
 import { Markup } from "telegraf";
 import { fetchMsigMetadata } from "../eos/fetch";
-
-const getBloksMsigLink = (proposer, proposalId) =>
-  `https://bloks.io/msig/${proposer}/${proposalId}`;
-
-const getUsersToNotify = async (notificationLevel: NOTIFICATION_LEVEL) => {
-  return User.find({
-    dacNotificationLevel: MoreThanOrEqual(notificationLevel)
-  });
-};
+import { logger } from "../logger";
+import { ParseMode } from "telegraf/typings/telegram-types";
+import { getUsersToNotify, sendToUsers } from "./utils";
 
 const getNotificationLevelForAction = (action: TEosAction) => {
   switch (action.name) {
@@ -34,14 +27,9 @@ const getMessageForAction = async (action: TEosAction): Promise<[string, any]> =
     "🔎 VIGOR.ai",
     `https://vigor.ai/dac-activity/review-msigs`
   );
-  const getBloksButton = (proposer, proposalId) =>
-    Markup.urlButton(
-      "️🗳️ Vote on Bloks",
-      getBloksMsigLink(proposer, proposalId)
-    );
 
   const defaultOptions = {
-    parse_mode: `Markdown`,
+    parse_mode: `Markdown` as ParseMode,
     disable_web_page_preview: true,
     // reply_markup: Markup.inlineKeyboard([memberClientButton]),
   };
@@ -121,10 +109,7 @@ const onAction = async (action: TEosAction) => {
   const users = await getUsersToNotify(notificationLevel);
 
   const args = await getMessageForAction(action);
-  for (const user of users) {
-    // https://core.telegram.org/bots/api#sendmessage
-    bot.telegram.sendMessage(user.telegramChatId, args[0], args[1]);
-  }
+  await sendToUsers(users, args[0], args[1])
 };
 
 export default onAction;
