@@ -117,7 +117,11 @@ class Watcher {
       } catch (error) {
         let message = error.message
         if (error.details && error.details.errors) message = `${message}. ${JSON.stringify(error.details.errors)}`
-        logger.error(`An error occurred: ${message}`)
+
+        // sometimes dfuse seems to have a different LIB than we receive, ignore this error
+        if(!/goes beyond LIB/i.test(message)) {
+          logger.error(`An error occurred: ${message}`)
+        }
         // try again
         await sleep(10000)
         continue
