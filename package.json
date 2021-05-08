@@ -15,7 +15,7 @@
       "sqlite3": "^4.0.3",
       "telegraf": "^3.33.2",
       "ts-node": "^3.3.0",
-      "typeorm": "0.2.20",
+      "typeorm": "0.2.25",
       "typescript": "3.3.3333",
       "winston": "^3.2.1",
       "ws": "^7.2.0"
