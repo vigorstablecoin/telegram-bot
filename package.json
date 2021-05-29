@@ -18,7 +18,7 @@
       "typeorm": "0.2.20",
       "typescript": "3.3.3333",
       "winston": "^3.2.1",
-      "ws": "^7.2.0"
+      "ws": "^7.4.6"
    },
    "scripts": {
       "start-dev": "NODE_ENV=development nodemon --exec ts-node src/index.ts",
